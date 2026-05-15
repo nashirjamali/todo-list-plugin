@@ -5,9 +5,21 @@
   "license": "ISC",
   "author": "",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "publish": "npm run build && orbit-publish",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "openclaw": {
+    "extensions": ["./index.ts"],
+    "compat": {
+      "pluginApi": ">=2026.5.12"
+    },
+    "build": {
+      "openclawVersion": "2026.5.12",
+      "pluginSdkVersion": "2026.5.12"
+    }
   },
   "dependencies": {
     "@orbit-0g/sdk": "^0.1.11"
