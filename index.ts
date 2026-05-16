@@ -4,18 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import { Type, type Static } from "@sinclair/typebox";
 import {
-  createOrbitSdk,
-  ensureOrbitWalletForOpenClaw,
-  registerOrbitUserBilling,
+  setupOrbitBillingForOpenClawPlugin,
   type OrbitOpenClawPluginApi,
-  type OrbitSdk,
 } from "@orbit-0g/sdk";
 import { definePluginEntry, jsonResult } from "openclaw/plugin-sdk/core";
-
-const orbitPluginIdRaw = (process.env.ORBIT_PLUGIN_ID ?? "").trim();
-const orbitPluginId = orbitPluginIdRaw ? (orbitPluginIdRaw as `0x${string}`) : null;
-let orbitSdk: OrbitSdk | null = null;
-let orbitInstallRecorded = false;
 
 type Todo = {
   id: string;
@@ -56,26 +48,6 @@ function findTodo(todos: Todo[], id: string): Todo | undefined {
   return todos.find((t) => t.id === id);
 }
 
-function getOrbitSdk(): OrbitSdk {
-  if (!orbitSdk) {
-    orbitSdk = createOrbitSdk({ privateKey: process.env.PRIVATE_KEY as `0x${string}` });
-  }
-  return orbitSdk;
-}
-
-async function chargeOrbitForTool(toolName: string, pluginConfig?: Record<string, unknown>) {
-  if (!orbitPluginId) return;
-  await ensureOrbitWalletForOpenClaw({ pluginConfig });
-  const sdk = getOrbitSdk();
-  if (!orbitInstallRecorded && process.env.ORBIT_BILLING_RECORD_INSTALL === "1") {
-    await sdk.billing.recordInstall(orbitPluginId);
-    orbitInstallRecorded = true;
-  }
-
-  console.log("RECORDING USAGE", orbitPluginId, toolName);
-  await sdk.billing.recordUsage(orbitPluginId, toolName);
-}
-
 const addParams = Type.Object({
   title: Type.String({ description: "Todo title" }),
   description: Type.Optional(Type.String({ description: "Optional details" })),
@@ -101,7 +73,7 @@ export default definePluginEntry({
   name: "todo-list-plugin",
   description: "Add, list, update, and remove todos in OpenClaw",
   register(api) {
-    registerOrbitUserBilling(api as OrbitOpenClawPluginApi);
+    setupOrbitBillingForOpenClawPlugin(api as OrbitOpenClawPluginApi, import.meta.url);
 
     api.registerTool({
       name: "todo_list_add",
@@ -110,7 +82,6 @@ export default definePluginEntry({
       parameters: addParams,
       async execute(_id, params) {
         const p = params as Static<typeof addParams>;
-        await chargeOrbitForTool("todo_list_add", api.pluginConfig);
         const now = new Date().toISOString();
         const todo: Todo = {
           id: randomUUID(),
@@ -134,7 +105,6 @@ export default definePluginEntry({
       parameters: getParams,
       async execute(_id, params) {
         const p = params as Static<typeof getParams>;
-        await chargeOrbitForTool("todo_list_get", api.pluginConfig);
         const todos = loadTodos();
         if (p.id) {
           const todo = findTodo(todos, p.id);
@@ -154,7 +124,6 @@ export default definePluginEntry({
       parameters: updateParams,
       async execute(_id, params) {
         const p = params as Static<typeof updateParams>;
-        await chargeOrbitForTool("todo_list_update", api.pluginConfig);
         const todos = loadTodos();
         const todo = findTodo(todos, p.id);
         if (!todo) {
@@ -176,7 +145,6 @@ export default definePluginEntry({
       parameters: removeParams,
       async execute(_id, params) {
         const p = params as Static<typeof removeParams>;
-        await chargeOrbitForTool("todo_list_remove", api.pluginConfig);
         const todos = loadTodos();
         const index = todos.findIndex((t) => t.id === p.id);
         if (index === -1) {
