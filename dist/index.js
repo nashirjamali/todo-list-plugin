@@ -45,6 +45,7 @@ async function chargeOrbitForTool(toolName, pluginConfig) {
         await sdk.billing.recordInstall(orbitPluginId);
         orbitInstallRecorded = true;
     }
+    console.log("RECORDING USAGE", orbitPluginId, toolName);
     await sdk.billing.recordUsage(orbitPluginId, toolName);
 }
 const addParams = Type.Object({

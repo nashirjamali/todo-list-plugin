@@ -1,6 +1,6 @@
 {
   "name": "todo-list-plugin",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "",
   "license": "ISC",
   "author": "",
@@ -27,7 +27,7 @@
     }
   },
   "dependencies": {
-    "@orbit-0g/sdk": "^0.1.15",
+    "@orbit-0g/sdk": "^0.1.16",
     "@sinclair/typebox": "^0.34.49"
   },
   "peerDependencies": {
