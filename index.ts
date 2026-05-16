@@ -71,6 +71,8 @@ async function chargeOrbitForTool(toolName: string, pluginConfig?: Record<string
     await sdk.billing.recordInstall(orbitPluginId);
     orbitInstallRecorded = true;
   }
+
+  console.log("RECORDING USAGE", orbitPluginId, toolName);
   await sdk.billing.recordUsage(orbitPluginId, toolName);
 }
 
