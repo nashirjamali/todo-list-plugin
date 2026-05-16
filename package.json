@@ -12,8 +12,12 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "openclaw": {
-    "extensions": ["./index.ts"],
-    "runtimeExtensions": ["./dist/index.js"],
+    "extensions": [
+      "./index.ts"
+    ],
+    "runtimeExtensions": [
+      "./dist/index.js"
+    ],
     "compat": {
       "pluginApi": ">=2026.5.12"
     },
@@ -23,7 +27,7 @@
     }
   },
   "dependencies": {
-    "@orbit-0g/sdk": "^0.1.11",
+    "@orbit-0g/sdk": "^0.1.12",
     "@sinclair/typebox": "^0.34.49"
   },
   "peerDependencies": {
